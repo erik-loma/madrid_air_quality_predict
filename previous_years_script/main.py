@@ -1,4 +1,9 @@
 import requests
+import zipfile
+import os
+import pandas as pd
+
+CURRENT_DIR = './'
 
 download_map = {
     "2024": "https://datos.madrid.es/egob/catalogo/201200-10306320-calidad-aire-horario.zip",
@@ -24,16 +29,35 @@ download_map = {
     "2004": "https://datos.madrid.es/egob/catalogo/201200-14-calidad-aire-horario.zip",
     "2003": "https://datos.madrid.es/egob/catalogo/201200-13-calidad-aire-horario.zip",
     "2002": "https://datos.madrid.es/egob/catalogo/201200-30-calidad-aire-horario.zip",
-    "2001": "https://datos.madrid.es/egob/catalogo/201200-29-calidad-aire-horario.zip",
+    "2001": "https://datos.madrid.es/egob/catalogo/201200-29-calidad-aire-horario.zip"
 }
+
+def download_zip_year(output_name: str):
+    response = requests.get(url)
+    ret = -1
+    with open(zip_name, 'wb') as f:
+        print(f'Downloading {output_name}')
+        ret = f.write(response.content)
+    return ret
 
 if __name__ == "__main__":
     for year, url in download_map.items():
         zip_name = 'air_quality_' + year + '.zip'
-        response = requests.get(url)
-
-        with open(zip_name, 'wb') as f:
-            f.write(response.content)
-
         
+        #Download the file for the year
+        if download_zip_year(zip_name) < 0:
+            print(f'Error downloading {zip_name}, skipping this year')
+            break
+
+        with zipfile.ZipFile(zip_name, 'r') as zip_ref:
+            print("Unziping " + zip_name)
+            zip_ref.extractall(CURRENT_DIR)
+
+        path = CURRENT_DIR + 'Anio' + year[2:]
+        csv_files = [f for f in os.listdir(path) if f.endswith('.csv')]
+        
+        for file in csv_files:
+            print(file)
+            break
+
         break
