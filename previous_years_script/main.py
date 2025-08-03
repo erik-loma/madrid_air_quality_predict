@@ -32,32 +32,63 @@ download_map = {
     "2001": "https://datos.madrid.es/egob/catalogo/201200-29-calidad-aire-horario.zip"
 }
 
-def download_zip_year(output_name: str):
-    response = requests.get(url)
+def download_zip_year(output_name: str) -> int:
     ret = -1
+    response = requests.get(url)
     with open(zip_name, 'wb') as f:
         print(f'Downloading {output_name}')
         ret = f.write(response.content)
     return ret
 
+def unzip_year_file(zip_name: str, unziped_folder: str) -> int:
+    ret = -1
+    with zipfile.ZipFile(zip_name, 'r') as zip_ref:
+        print("Unziping " + zip_name)
+        zip_ref.extractall(CURRENT_DIR)
+
+    if os.path.isdir(unziped_folder):
+        ret = 1
+    return ret
+
+def read_all_csv(path: str) -> int:
+    ret = -1
+
+    csv_files = [f for f in os.listdir(path) if f.endswith('.csv')]
+        
+    for file in csv_files:
+        file_path = path + '/' + file
+        format_csv_file(file_path)
+
+        #temporal
+        return -1
+
+    return ret
+
+def format_csv_file(file: str) -> int:
+    df = pd.read_csv(file, sep=';')
+
+    print(df.head)
+
+
+
 if __name__ == "__main__":
     for year, url in download_map.items():
         zip_name = 'air_quality_' + year + '.zip'
-        
+        path = CURRENT_DIR + 'Anio' + year[2:]
+    
         #Download the file for the year
         if download_zip_year(zip_name) < 0:
             print(f'Error downloading {zip_name}, skipping this year')
             break
 
-        with zipfile.ZipFile(zip_name, 'r') as zip_ref:
-            print("Unziping " + zip_name)
-            zip_ref.extractall(CURRENT_DIR)
-
-        path = CURRENT_DIR + 'Anio' + year[2:]
-        csv_files = [f for f in os.listdir(path) if f.endswith('.csv')]
-        
-        for file in csv_files:
-            print(file)
+        #Unzip the file and check if the folder exists
+        if unzip_year_file(zip_name, path) < 0:
+            print(f'Error unziping {zip_name}, skipping this year')
             break
+
+        if read_all_csv(path) < 0:
+            print(f'Error reading {path} csv files, skipping this year')
+            break
+
 
         break
