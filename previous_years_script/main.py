@@ -45,7 +45,13 @@ def format_csv_file(file: str) -> int:
     for hour in range(1, 25):
         h_col = f'H{hour:02d}'      
         value = row[h_col]
-        magnitude = magnitudes_map[row['MAGNITUD']]
+
+        #Magnitudes variables to store
+        magnitude_code = row['MAGNITUD']
+        magnitude_name = magnitudes_map[row['MAGNITUD']]["name"]
+        magnitude_abbr = magnitudes_map[row['MAGNITUD']]["abbreviation"]
+        magnitude_unit = magnitudes_map[row['MAGNITUD']]["unit"]
+        magnitude_method = magnitudes_map[row['MAGNITUD']]["method"]
 
         if hour < 24:
             timestamp = pd.Timestamp(year=row['ANO'], month=row['MES'], day=row['DIA'], hour=hour)
@@ -55,7 +61,11 @@ def format_csv_file(file: str) -> int:
 
         records.append({
             'timestamp': timestamp,
-            'magnitude': magnitude,
+            'magnitude_code': magnitude_code,
+            'magnitude_name': magnitude_name,
+            'magnitude_abbr': magnitude_abbr,
+            'magnitude_unit': magnitude_unit,
+            'magnitude_method': magnitude_method,
             'value': value,
         })
 
