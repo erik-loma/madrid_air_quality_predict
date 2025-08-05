@@ -42,36 +42,45 @@ def format_csv_file(file: str) -> int:
     records = []
     row = df.iloc[0]
 
-    for hour in range(1, 25):
-        h_col = f'H{hour:02d}'      
-        value = row[h_col]
+    # Iterate using iterrows
+    for index, row in df.iterrows():
+        for hour in range(1, 25):
+            h_col = f'H{hour:02d}'      
+            value = row[h_col]
 
-        #Magnitudes variables to store
-        magnitude_code = row['MAGNITUD']
-        magnitude_name = magnitudes_map[row['MAGNITUD']]["name"]
-        magnitude_abbr = magnitudes_map[row['MAGNITUD']]["abbreviation"]
-        magnitude_unit = magnitudes_map[row['MAGNITUD']]["unit"]
-        magnitude_method = magnitudes_map[row['MAGNITUD']]["method"]
+            #Magnitudes variables to store
+            magnitude_code = row['MAGNITUD']
+            magnitude_name = magnitudes_map[row['MAGNITUD']]["name"]
+            magnitude_abbr = magnitudes_map[row['MAGNITUD']]["abbreviation"]
+            magnitude_unit = magnitudes_map[row['MAGNITUD']]["unit"]
+            magnitude_method = magnitudes_map[row['MAGNITUD']]["method"]
 
-        if hour < 24:
-            timestamp = pd.Timestamp(year=row['ANO'], month=row['MES'], day=row['DIA'], hour=hour)
-        else:
-            base_date = pd.Timestamp(year=row['ANO'], month=row['MES'], day=row['DIA'])
-            timestamp = base_date + pd.Timedelta(days=1)
+            #Sampling point variables to store
+            sampling_point_code = int(str(row['PUNTO_MUESTREO']).split("_")[0])
+            sampling_point_name = sampling_points_map[sampling_point_code]["name"]
 
-        records.append({
-            'timestamp': timestamp,
-            'magnitude_code': magnitude_code,
-            'magnitude_name': magnitude_name,
-            'magnitude_abbr': magnitude_abbr,
-            'magnitude_unit': magnitude_unit,
-            'magnitude_method': magnitude_method,
-            'value': value,
-        })
+
+            if hour < 24:
+                timestamp = pd.Timestamp(year=row['ANO'], month=row['MES'], day=row['DIA'], hour=hour)
+            else:
+                base_date = pd.Timestamp(year=row['ANO'], month=row['MES'], day=row['DIA'])
+                timestamp = base_date + pd.Timedelta(days=1)
+
+            records.append({
+                'timestamp': timestamp,
+                'magnitude_code': magnitude_code,
+                'magnitude_name': magnitude_name,
+                'magnitude_abbr': magnitude_abbr,
+                'magnitude_unit': magnitude_unit,
+                'magnitude_method': magnitude_method,
+                'sampling_point_code': sampling_point_code,
+                'sampling_point_name': sampling_point_name,
+                'value': value,
+            })
 
     df_long = pd.DataFrame(records)
 
-    print(df_long.iloc[23])
+    print(len(df_long))
 
 
 
