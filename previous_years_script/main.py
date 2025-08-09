@@ -1,6 +1,7 @@
 import requests
 import zipfile
 import os
+import shutil
 import pandas as pd
 from data_information import *
 
@@ -33,13 +34,19 @@ def read_all_csv(path: str) -> int:
         file_path = path + '/' + file
         format_csv_file(file_path)
 
-        #temporal
-        #return -1
-
-    for k,v in sampling_points_map.items():
-        print(str(sampling_points_map[k]["name"]) + ": " + str(len(v["list"])))
-
     return ret
+
+def remove_files(zip:str, path: str) -> int:
+    ret = -1
+
+    try:
+        os.remove(zip)
+        shutil.rmtree(path)
+        ret = 0
+    except Exception as e:
+        ret = -2
+
+    return ret 
 
 def format_csv_file(file: str) -> int:
     df = pd.read_csv(file, sep=';')
@@ -105,5 +112,10 @@ if __name__ == "__main__":
             print(f'Error reading {path} csv files, skipping this year')
             break
 
-
+        if remove_files(zip_name, path) < 0:
+            print(f"Error removing files")
+            break
         break
+
+        for k,v in sampling_points_map.items():
+            print(str(sampling_points_map[k]["name"]) + ": " + str(len(v["list"])))
