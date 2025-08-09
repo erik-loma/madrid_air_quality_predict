@@ -36,8 +36,8 @@ def read_all_csv(path: str) -> int:
         #temporal
         #return -1
 
-    for k,v in sampling_points_lists.items():
-        print(str(sampling_points_map[k]["name"]) + ": " + str(len(v)))
+    for k,v in sampling_points_map.items():
+        print(str(sampling_points_map[k]["name"]) + ": " + str(len(v["list"])))
 
     return ret
 
@@ -70,7 +70,7 @@ def format_csv_file(file: str) -> int:
                 base_date = pd.Timestamp(year=row['ANO'], month=row['MES'], day=row['DIA'])
                 timestamp = base_date + pd.Timedelta(days=1)
 
-            sampling_points_lists[sampling_point_code].append({
+            sampling_points_map[sampling_point_code]["list"].append({
                 'timestamp': timestamp,
                 'magnitude_code': magnitude_code,
                 'magnitude_name': magnitude_name,
