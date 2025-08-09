@@ -4,6 +4,8 @@ import os
 import pandas as pd
 from data_information import *
 
+records = []
+
 def download_zip_year(output_name: str) -> int:
     ret = -1
     response = requests.get(url)
@@ -23,7 +25,7 @@ def unzip_year_file(zip_name: str, unziped_folder: str) -> int:
     return ret
 
 def read_all_csv(path: str) -> int:
-    ret = -1
+    ret = 1
 
     csv_files = [f for f in os.listdir(path) if f.endswith('.csv')]
         
@@ -32,14 +34,16 @@ def read_all_csv(path: str) -> int:
         format_csv_file(file_path)
 
         #temporal
-        return -1
+        #return -1
+
+    for k,v in sampling_points_lists.items():
+        print(str(sampling_points_map[k]["name"]) + ": " + str(len(v)))
 
     return ret
 
 def format_csv_file(file: str) -> int:
     df = pd.read_csv(file, sep=';')
 
-    records = []
     row = df.iloc[0]
 
     # Iterate using iterrows
@@ -66,7 +70,7 @@ def format_csv_file(file: str) -> int:
                 base_date = pd.Timestamp(year=row['ANO'], month=row['MES'], day=row['DIA'])
                 timestamp = base_date + pd.Timedelta(days=1)
 
-            records.append({
+            sampling_points_lists[sampling_point_code].append({
                 'timestamp': timestamp,
                 'magnitude_code': magnitude_code,
                 'magnitude_name': magnitude_name,
@@ -77,10 +81,8 @@ def format_csv_file(file: str) -> int:
                 'sampling_point_name': sampling_point_name,
                 'value': value,
             })
-
-    df_long = pd.DataFrame(records)
-
-    print(len(df_long))
+            
+    print(f"Added {file} to each station dataframe")
 
 
 
