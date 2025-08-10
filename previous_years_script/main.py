@@ -16,13 +16,26 @@ def download_zip_year(output_name: str) -> int:
     return ret
 
 def unzip_year_file(zip_name: str, unziped_folder: str) -> int:
-    ret = -1
+    ret = 1
     with zipfile.ZipFile(zip_name, 'r') as zip_ref:
         print("Unziping " + zip_name)
         zip_ref.extractall(CURRENT_DIR)
 
-    if os.path.isdir(unziped_folder):
-        ret = 1
+    if not os.path.isdir(unziped_folder):
+        source_folder = './'
+        destination_folder = unziped_folder
+        file_extension = ['.txt', '.csv', '.xml']
+
+        os.makedirs(destination_folder, exist_ok=True)
+
+        for filename in os.listdir(source_folder):
+            for ext in file_extension:
+                if filename.endswith(ext):
+                    src_path = os.path.join(source_folder, filename)
+                    dest_path = os.path.join(destination_folder, filename)
+                    shutil.move(src_path, dest_path)
+
+
     return ret
 
 def read_all_csv(path: str) -> int:
@@ -48,10 +61,21 @@ def remove_files(zip:str, path: str) -> int:
 
     return ret 
 
+def save_data_to_csv() -> int:
+    ret = 1
+
+    output_folder = './output_files/'
+    os.makedirs(output_folder, exist_ok=True)
+
+    for k,v in sampling_points_map.items():
+        file_name = 'data_' + str(k) + '.csv'
+        df = pd.DataFrame(v["list"])
+        df.to_csv(output_folder + file_name, index=False)
+
+    return ret  
+
 def format_csv_file(file: str) -> int:
     df = pd.read_csv(file, sep=';')
-
-    row = df.iloc[0]
 
     # Iterate using iterrows
     for index, row in df.iterrows():
@@ -115,7 +139,6 @@ if __name__ == "__main__":
         if remove_files(zip_name, path) < 0:
             print(f"Error removing files")
             break
-        break
 
-        for k,v in sampling_points_map.items():
-            print(str(sampling_points_map[k]["name"]) + ": " + str(len(v["list"])))
+    if save_data_to_csv() < 0:
+        print(f"Error creating csv")
