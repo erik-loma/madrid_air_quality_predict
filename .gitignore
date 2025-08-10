@@ -1,3 +1,4 @@
 influx_data_script/__pycache__/
 previous_years_script/__pycache__/
 previous_years_script/output_files/
+influx_data_script/influx_db_secrets.py
